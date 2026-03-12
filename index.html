@@ -3,103 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Absensi Scanner - LPK Takashi Japan</title>
+    <title>Absensi LPK Takashi Japan</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #bc002d; /* Merah Jepang */
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
         }
         .container {
             background-color: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             text-align: center;
             width: 90%;
-            max-width: 500px;
+            max-width: 450px;
         }
-        h2 {
-            color: #bc002d;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-        .subtitle {
-            color: #555;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
+        h2 { color: #bc002d; margin-bottom: 5px; }
+        .info { color: #666; font-size: 14px; margin-bottom: 20px; }
+        
+        /* Gaya area kamera */
         #reader {
             width: 100%;
-            border-radius: 15px;
-            overflow: hidden;
-            border: 2px solid #eee !important;
-        }
-        #result {
-            margin-top: 20px;
-            padding: 15px;
             border-radius: 10px;
-            display: none;
-            font-weight: bold;
+            overflow: hidden;
+            border: none !important;
         }
-        .success {
-            background-color: #d4edda;
-            color: #155724;
+        #reader__dashboard_section_csr button {
+            background-color: #bc002d !important;
+            color: white !important;
+            border: none !important;
+            padding: 10px 20px !important;
+            border-radius: 5px !important;
+            cursor: pointer;
+        }
+        #result-box {
+            margin-top: 15px;
+            padding: 10px;
+            display: none;
+            border-radius: 8px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Selamat Datang</h2>
-    <p style="font-weight: bold; color: #bc002d; margin-top: 0;">LPK TAKASHI JAPAN</p>
-    <div class="subtitle">Pastikan QR Code terlihat jelas di kamera</div>
-    
-    <div id="reader"></div>
+    <h2>SELAMAT DATANG</h2>
+    <p style="font-weight: bold; margin-top: 0;">LPK TAKASHI JAPAN</p>
+    <div class="info">Arahkan QR Code ke kamera</div>
 
-    <div id="result"></div>
+    <div id="reader"></div>
+    <div id="result-box"></div>
 </div>
 
 <script>
-    // Konfigurasi Scanner
-    function onScanSuccess(decodedText, decodedResult) {
-        // Tampilkan hasil di layar
-        const resultDiv = document.getElementById('result');
-        resultDiv.style.display = 'block';
-        resultDiv.className = 'success';
-        resultDiv.innerHTML = `Terdeteksi: ${decodedText}`;
+    const resultBox = document.getElementById('result-box');
 
-        // Kirim data ke Google Apps Script (Opsional)
-        // kirimDataKeSheets(decodedText);
-        
-        console.log(`Code scanned = ${decodedText}`, decodedResult);
-        
-        // Berhenti scan sejenak agar tidak double input
-        html5QrcodeScanner.clear();
-        setTimeout(() => {
-            location.reload(); // Refresh untuk scan berikutnya
-        }, 3000);
+    function onScanSuccess(decodedText, decodedResult) {
+        // Tampilkan notifikasi sukses
+        resultBox.style.display = 'block';
+        resultBox.style.backgroundColor = '#d4edda';
+        resultBox.style.color = '#155724';
+        resultBox.innerHTML = `Berhasil Scan: ${decodedText}`;
+
+        // Suara bip jika diperlukan
+        console.log(`Scan Result: ${decodedText}`);
+
+        // Berhenti scan agar tidak double data
+        html5QrcodeScanner.clear().then(_ => {
+            // Logika lanjut: Kirim ke Google Sheets di sini
+            // Setelah 3 detik, siapkan untuk scan berikutnya
+            setTimeout(() => {
+                location.reload(); 
+            }, 3000);
+        });
     }
 
     function onScanFailure(error) {
-        // Log ini dimatikan agar tidak memenuhi console
-        // console.warn(`Code scan error = ${error}`);
+        // Tidak perlu menampilkan error scan gagal di sini agar tidak mengganggu
     }
 
     let html5QrcodeScanner = new Html5QrcodeScanner(
         "reader", 
         { 
-            fps: 10, 
+            fps: 15, 
             qrbox: {width: 250, height: 250},
-            aspectRatio: 1.0 
-        },
-        /* verbose= */ false);
-    
+            aspectRatio: 1.0,
+            rememberLastUsedCamera: true
+        }
+    );
+
     html5QrcodeScanner.render(onScanSuccess, onScanFailure);
 </script>
 
